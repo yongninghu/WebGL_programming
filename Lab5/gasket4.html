@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>3D Sierpinski Gasket</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+precision mediump float;
+
+attribute vec4 vPosition;
+attribute vec4 vColor;
+attribute vec4 vNormal;
+varying vec4 color;
+varying vec4 position;
+varying vec4 normal;
+uniform mat4 Projection;
+uniform mat4 modelView;
+uniform mat4 modelMatrix;
+uniform mat4 normalMatrix;
+
+uniform int Gouraud;
+uniform vec3 lightPos;
+
+varying vec3 vertPos;
+varying vec3 eyePos;
+varying vec3 N;
+
+void
+main()
+{	
+	vec3 ambientColor = vec3(0.1, 0.1, 0.1);
+	vec3 diffuseColor = vec3(0.8, 0.8, 0.8);
+	vec3 specColor = vec3(1.0, 1.0, 1.0);
+	vertPos = (modelMatrix * vPosition).xyz;
+	eyePos = (modelView * vPosition).xyz;
+	N = normalize((normalMatrix * vNormal).xyz);
+	
+	vec3 L = normalize(lightPos - vertPos);
+	vec3 R = normalize(-reflect(L, N));
+	vec3 V = normalize(-eyePos);
+
+    float lambertian = max(0.0, dot(N, L));
+    float specular = 0.0;
+
+    if(lambertian > 0.0) {
+       float specAngle = max(0.0, dot(R, V));
+       specular = pow(specAngle, 100.0);
+    }
+	color = vColor;
+	if(Gouraud == 1) {
+		color = vec4(ambientColor +
+                      lambertian*diffuseColor +
+                      specular*specColor, 1.0) * vColor;
+		color.a = 1.0;
+	}
+    gl_Position = Projection * modelView * vPosition;
+	position = vPosition;
+	normal = vNormal;
+	
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+varying vec4 color;
+varying vec4 position;
+varying vec4 normal;
+
+uniform int Phong;
+uniform int Toon;
+uniform vec4 random;
+
+uniform vec3 lightPos;
+
+varying vec3 vertPos;
+varying vec3 eyePos;
+varying vec3 N;
+
+void
+main()
+{
+	const float A = 0.1;
+	const float B = 0.3;
+	const float C = 0.6;
+	const float D = 1.0;
+	
+	vec3 ambientColor = vec3(0.1, 0.1, 0.1);
+	vec3 diffuseColor = vec3(0.8, 0.8, 0.8);
+	vec3 specColor = vec3(1.0, 1.0, 1.0);
+	vec3 L = normalize(lightPos - vertPos);
+	vec3 R = normalize(-reflect(L, N));
+	vec3 V = normalize(-eyePos);
+
+    float lambertian = max(0.0, dot(N,L));
+    float specular = 0.0;
+
+    if(lambertian > 0.0) {
+       float specAngle = max(0.0, dot(R, V));
+       specular = pow(specAngle, 100.0);
+    }
+	gl_FragColor = color;
+	
+	if(Toon == 1) {
+		if (lambertian < A) lambertian = 0.0;
+		else if (lambertian < B) lambertian = B;
+		else if (lambertian < C) lambertian = C;
+		else lambertian = D;
+		
+		specular = step(0.5, specular);
+		gl_FragColor = vec4(ambientColor +
+                      lambertian*diffuseColor +
+                      specular*specColor, 1.0) * color;
+		gl_FragColor.a = 1.0;
+	}
+	if(Phong == 1) {
+		gl_FragColor = vec4(ambientColor +
+                      lambertian*diffuseColor +
+                      specular*specColor, 1.0) * color;
+		gl_FragColor.a = 1.0;
+	}
+}
+
+</script>
+
+<button id="roX">Rotate X</button>
+<button id="roY">Rotate Y</button>
+<button id="roZ">Rotate Z</button>
+<button id="deFov">Decrease FOV</button>
+<button id="inFov">Increase FOV</button>
+<button id="shade">Shader Off</button>
+<button id="shade1">Phong</button>
+<button id="shade2">Gouraud</button>
+<button id="shade3">Cartoon</button>
+<button id="shade4">Vertex/Face</button>
+
+<p>Instructions:</p>
+<p>- Use the buttons above to rotate the sphere or decrease/increase FOV or toggle shading.</p>
+<p>- Use 'w' or 's' or 'a' or 'd' or 'q' or 'e' to translate the sphere forward or back or left or right or up or down respectively.</p>
+<p>- Click and drag mouse to look left, right, top, or down or scroll mouse wheel forward to look closer or backward to look farther. </p>
+<p>- Use 'z' or 'x' or 'c' or 'v' to move camera position left or right or up or down respectively. </p>
+<p>- Use 'f' or 'r' or 't' or 'g' or 'y' or 'h' to move light position left or right or up or down or forward or back respectively. </p>
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="gasket4.js"></script>
+</head>   
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>

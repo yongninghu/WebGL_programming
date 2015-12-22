@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Geometric Animal</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 aPosition;
+attribute vec4 aNormal;
+attribute vec2 aTextureCoord;
+
+varying vec4 position;
+varying vec4 normal;
+uniform mat4 Projection;
+uniform mat4 modelView;
+uniform mat4 modelMatrix;
+uniform mat4 normalMatrix;
+uniform mat4 bodyRotate;
+
+varying vec3 vertPos;
+varying vec3 eyePos;
+varying vec3 N;
+varying vec2 vTextureCoord;
+
+void
+main()
+{	
+	vertPos = (modelMatrix * aPosition).xyz;
+	eyePos = (modelView * aPosition).xyz;
+	N = normalize((normalMatrix * aNormal).xyz);
+	
+	vTextureCoord = aTextureCoord;
+        gl_Position = modelView * aPosition;
+        gl_Position = bodyRotate * gl_Position;
+        gl_Position = Projection * gl_Position;
+	position = aPosition;
+	normal = aNormal;
+	
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform sampler2D textureUnit0;
+
+varying vec2 vTextureCoord;
+
+varying vec4 position;
+varying vec4 normal;
+
+uniform int shader;
+uniform int text;
+uniform int color; 
+uniform vec4 random;
+
+uniform vec3 lightPos;
+
+varying vec3 vertPos;
+varying vec3 eyePos;
+varying vec3 N;
+
+void
+main()
+{
+	vec3 ambientColor = vec3(0.3, 0.3, 0.3);
+	vec3 diffuseColor = vec3(0.8, 0.8, 0.8);
+	vec3 specColor = vec3(1.0, 1.0, 1.0);
+	vec3 L = normalize(lightPos - vertPos);
+	vec3 R = normalize(-reflect(L, N));
+	vec3 V = normalize(-eyePos);
+	
+    float lambertian = max(0.0, dot(N,L));
+
+    float specular = 0.0;
+
+    if(lambertian > 0.0) {
+       float specAngle = max(0.0, dot(R, V));
+       specular = pow(specAngle, 100.0);
+    }
+	gl_FragColor = vec4(1.0, 0.5, 0.0, 1.0);
+        if(color == 1)
+           gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+        if(color == 2)
+           gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        if(color == 3)
+           gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        if(color == 4)
+           gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+	if(shader == 1 && text == 0) {
+		gl_FragColor = vec4(ambientColor +
+				lambertian * diffuseColor +
+				specular*specColor, 1.0) * gl_FragColor;
+	}
+	if(shader == 0 && text == 1) {
+		gl_FragColor = texture2D(textureUnit0, vTextureCoord);
+	}
+	
+	if(shader == 1 && text == 1) {
+		gl_FragColor = vec4(ambientColor +
+                      lambertian*diffuseColor +
+                      specular*specColor, 1.0) * texture2D(textureUnit0, vTextureCoord);
+	}
+}
+
+</script>
+
+<button id="deFov">Decrease FOV</button>
+<button id="inFov">Increase FOV</button>
+<button id="shade">Shader Toggle</button>
+<button id="texture">Texture Toggle</button>
+<button id="anime">Animation Toggle</button>
+<button id="first">First Hierarchy</button>
+<button id="second">Second Hierarchy</button>
+<p>- Use decrease/increase FOV or toggle shading or toggle shading or toggle animation.</p>
+<p>- User First Hierarchy and Second Hierarchy to control leg movements when animation is off. </p>
+<p>- Click and drag mouse to look left, right, top, or down or scroll mouse wheel forward to look closer or backward to look farther. </p>
+<p>- Use 'z' or 'x' or 'c' or 'v' to move camera position left or right or up or down respectively. </p>
+<p>- Use 'f' or 'r' or 't' or 'g' or 'y' or 'h' to move light position left or right or up or down or forward or back respectively. </p>
+<p>- Note: Body rotation may be wrong sometimes due to weird terrain height. </p>
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="gasket4.js"></script>
+<script type="text/javascript" src="honolulu4.js"></script>
+</head>   
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>

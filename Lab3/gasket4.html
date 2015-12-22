@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>3D Sierpinski Gasket</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+varying vec4 color;
+uniform mat4 MVP;
+
+void
+main()
+{	
+    color = vColor;
+    gl_Position = MVP * vPosition;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+   
+varying vec4 color;
+
+void
+main()
+{
+    gl_FragColor = color;
+}
+</script>
+
+<div>Subdivisions: 1<input id="slider1" type="range"
+min="1" max="3" step="1" value="1"/>
+3
+</div>
+
+<button id="roX">Rotate X</button>
+<button id="roY">Rotate Y</button>
+<button id="roZ">Rotate Z</button>
+<button id="roTog">Toggle Rotation Axes</button>
+
+<p>Instructions:</p>
+<p>- Use the slider to adjust the number of gasket subdivisions.</p>
+<p>- Use the buttons above to rotate the gasket.</p>
+<p>- Use 'w' or 's' to translate the gasket forward or back respectively.</p>
+<p>- Use 'a' or 'd' to translate the gasket left or right respectively.</p>
+<p>- Use 'q' or 'e' to translate the gasket up or down respectively.</p>
+<p>- Click Toggle Rotation Axes to make gasket rotate around world axes or local axes.</p>
+
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="gasket4.js"></script>
+</head>   
+
+<body>
+<canvas id="gl-canvas" width="1024" height="1024">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>

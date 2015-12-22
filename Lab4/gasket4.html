@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>3D Sierpinski Gasket</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+varying vec4 color;
+uniform mat4 Projection;
+uniform mat4 modelView;
+
+void
+main()
+{	
+    color = vColor;
+    gl_Position = Projection * modelView * vPosition;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+   
+varying vec4 color;
+
+void
+main()
+{
+    gl_FragColor = color;
+}
+</script>
+
+<div>Subdivisions: 1<input id="slider1" type="range"
+min="1" max="3" step="1" value="1"/>
+3
+</div>
+
+<button id="roX">Rotate X</button>
+<button id="roY">Rotate Y</button>
+<button id="roZ">Rotate Z</button>
+<button id="deFov">Decrease FOV</button>
+<button id="inFov">Increase FOV</button>
+
+<p>Instructions:</p>
+<p>- Use the slider to adjust the number of gasket subdivisions.</p>
+<p>- Use the buttons above to rotate the gasket or decrease/increase FOV.</p>
+<p>- Use 'w' or 's' or 'a' or 'd' or 'q' or 'e' to translate the gasket forward or back or left or right or up or down respectively.</p>
+<p>- Click and drag mouse to look left, right, top, or down or scroll mouse wheel forward to look closer or backward to look farther. </p>
+<p>- Use 'z' or 'x' or 'c' or 'v' to move camera position left or right or up or down respectively. </p>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="heightMap.js"></script>
+<script type="text/javascript" src="gasket4.js"></script>
+</head>   
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
